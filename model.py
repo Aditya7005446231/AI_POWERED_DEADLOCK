@@ -1,100 +1,197 @@
-import pandas as pd
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier
+import pandas as pd
+from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import classification_report
 import joblib
+from collections import defaultdict
 
-def generate_realistic_dataset(num_samples=1000):
-    """Generate a more realistic deadlock dataset"""
-    np.random.seed(42)
-    
-    data = {
-        'allocated_R1': np.random.randint(0, 10, num_samples),
-        'allocated_R2': np.random.randint(0, 10, num_samples),
-        'requested_R1': np.random.randint(0, 10, num_samples),
-        'requested_R2': np.random.randint(0, 10, num_samples),
-        'available_R1': np.random.randint(1, 15, num_samples),
-        'available_R2': np.random.randint(1, 15, num_samples),
-    }
-    
-    df = pd.DataFrame(data)
-    
-    # Simulate deadlock conditions (Banker's algorithm logic)
-    df['deadlock'] = np.where(
-        (df['requested_R1'] > df['available_R1']) | 
-        (df['requested_R2'] > df['available_R2']) |
-        ((df['allocated_R1'] + df['allocated_R2']) > (df['available_R1'] + df['available_R2'])),
-        1, 0
-    )
-    
-    return df
+class DeadlockDetector:
+    def __init__(self, num_processes=3, num_resources=2):
+        self.num_processes = num_processes
+        self.num_resources = num_resources
+        self.model = GradientBoostingClassifier(n_estimators=150, max_depth=5, random_state=42)
+    def parse_matrix_input(self, input_str):
+        """Safely converts string matrix input to numpy array"""
+        try:
+            # Remove all whitespace and outer brackets
+            cleaned = input_str.strip().replace('\n','').replace('\r','').replace(' ','')
+            if cleaned.startswith('[[') and cleaned.endswith(']]'):
+                cleaned = cleaned[2:-2]
+            
+            # Split into rows
+            rows = cleaned.split('],[') if '],[' in cleaned else [cleaned]
+            
+            # Convert to 2D array
+            matrix = []
+            for row in rows:
+                matrix.append([int(x) for x in row.split(',') if x != ''])
+                
+            return np.array(matrix)
+        except Exception as e:
+            raise ValueError(f"Invalid matrix input: {str(e)}")
 
-def train_and_evaluate_model():
-    df = generate_realistic_dataset(5000)
+    def parse_input(self, input_data):
+        """Handles both string and list inputs"""
+        if isinstance(input_data, str):
+            try:
+                # Clean string input
+                cleaned = input_data.strip().replace('\n','').replace('\r','').replace(' ','')
+                if cleaned.startswith('[') and cleaned.endswith(']'):
+                    cleaned = cleaned[1:-1]
+                return np.array([int(x) for x in cleaned.split(',') if x != ''])
+            except:
+                raise ValueError("Invalid input format. Use: '1,0,2,1' or [[1,0],[2,1]]")
+        elif isinstance(input_data, (list, np.ndarray)):
+            return np.array(input_data)
+        else:
+            raise ValueError("Input must be string or list")
+        
+            
+    def generate_dataset(self, num_samples=5000):
+        """Generate more realistic deadlock scenarios"""
+        data = []
+        
+        for _ in range(num_samples):
+            # Generate random system state
+            allocated = np.random.randint(0, 5, (self.num_processes, self.num_resources))
+            requested = np.random.randint(0, 5, (self.num_processes, self.num_resources))
+            available = np.random.randint(1, 5, self.num_resources)
+            
+            # Calculate actual deadlock state
+            is_deadlock = self.bankers_algorithm(allocated, requested, available) == "Deadlock"
+            
+            # Create features
+            features = {
+                **{f"alloc_p{i}_r{j}": allocated[i,j] for i in range(self.num_processes) 
+                                      for j in range(self.num_resources)},
+                **{f"request_p{i}_r{j}": requested[i,j] for i in range(self.num_processes) 
+                                        for j in range(self.num_resources)},
+                **{f"avail_r{j}": available[j] for j in range(self.num_resources)},
+                "need_imbalance": np.sum(requested - allocated),
+                "total_contention": np.sum(requested),
+                "deadlock": int(is_deadlock)
+            }
+            data.append(features)
+            
+        return pd.DataFrame(data)
     
-    # Features: allocated, requested, and available resources
-    X = df[['allocated_R1', 'allocated_R2', 'requested_R1', 'requested_R2', 'available_R1', 'available_R2']]
-    y = df['deadlock']
+    def bankers_algorithm(self, allocated, requested, available):
+        """Enhanced Banker's algorithm implementation"""
+        work = np.array(available)
+        need = requested - allocated
+        finish = np.zeros(self.num_processes, dtype=bool)
+        sequence = []
+        
+        for _ in range(self.num_processes):
+            found = False
+            for i in range(self.num_processes):
+                if not finish[i] and np.all(need[i] <= work):
+                    work += allocated[i]
+                    finish[i] = True
+                    sequence.append(i)
+                    found = True
+                    break
+            
+            if not found:
+                deadlocked = np.where(~finish)[0].tolist()
+                return "Deadlock", deadlocked
+                
+        return "Safe", sequence
     
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    
-    model = RandomForestClassifier(n_estimators=100, random_state=42)
-    model.fit(X_train, y_train)
-    
-    # Evaluate
-    y_pred = model.predict(X_test)
-    print("Accuracy:", accuracy_score(y_test, y_pred))
-    print(classification_report(y_test, y_pred))
-    
-    joblib.dump(model, 'deadlock_model.pkl')
-    return model
+    def train(self, num_samples=10000):
+        """Train the model with enhanced features"""
+        df = self.generate_dataset(num_samples)
+        
+        X = df.drop('deadlock', axis=1)
+        y = df['deadlock']
+        
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=0.2, random_state=42, stratify=y)
+        
+        self.model.fit(X_train, y_train)
+        
+        # Evaluate
+        y_pred = self.model.predict(X_test)
+        print(classification_report(y_test, y_pred))
+        
+        # Save model
+        joblib.dump(self.model, 'enhanced_deadlock_model.pkl')
+        print("Model trained and saved successfully")
+        
+    def predict(self, allocated, requested, available):
+        """Make prediction with proper input handling"""
+        try:
+            # Convert inputs to numpy arrays
+            allocated = np.array(allocated)
+            requested = np.array(requested)
+            available = np.array(available)
+            
+            # Validate shapes
+            if allocated.shape != (self.num_processes, self.num_resources):
+                raise ValueError(f"Allocated matrix must be {self.num_processes}x{self.num_resources}")
+            if requested.shape != (self.num_processes, self.num_resources):
+                raise ValueError(f"Requested matrix must be {self.num_processes}x{self.num_resources}")
+            if available.shape != (self.num_resources,):
+                raise ValueError(f"Available must have {self.num_resources} elements")
+            
+            # Banker's algorithm result
+            banker_result, details = self.bankers_algorithm(allocated, requested, available)
+            
+            # Prepare features for ML prediction
+            features = {
+                **{f"alloc_p{i}_r{j}": allocated[i,j] for i in range(self.num_processes) 
+                                      for j in range(self.num_resources)},
+                **{f"request_p{i}_r{j}": requested[i,j] for i in range(self.num_processes) 
+                                        for j in range(self.num_resources)},
+                **{f"avail_r{j}": available[j] for j in range(self.num_resources)},
+                "need_imbalance": np.sum(requested - allocated),
+                "total_contention": np.sum(requested)
+            }
+            
+            # Make ML prediction
+            ml_pred = self.model.predict(pd.DataFrame([features]))[0]
+            
+            return {
+                "bankers_algorithm": {
+                    "status": banker_result,
+                    "details": details if banker_result == "Deadlock" else {"safe_sequence": details}
+                },
+                "ml_prediction": "Deadlock" if ml_pred else "Safe",
+                "combined_verdict": "Deadlock" if banker_result == "Deadlock" or ml_pred else "Safe",
+                "confidence": self.model.predict_proba(pd.DataFrame([features]))[0][1] if ml_pred else 
+                             self.model.predict_proba(pd.DataFrame([features]))[0][0]
+            }
+            
+        except Exception as e:
+            return {
+                "error": str(e),
+                "recommendation": f"Please provide {self.num_processes} processes x {self.num_resources} resources matrices"
+            }
 
 def predict_deadlock(allocated, requested, available):
-    """Predict deadlock using trained model"""
-    try:
-        # Load trained model
-        model = joblib.load('deadlock_model.pkl')
-        
-        # Prepare input data (convert from strings to arrays if needed)
-        if isinstance(allocated, str):
-            allocated = [int(x) for x in allocated.strip('[]').split(',')]
-        if isinstance(requested, str):
-            requested = [int(x) for x in requested.strip('[]').split(',')]
-        if isinstance(available, str):
-            available = [int(x) for x in available.strip('[]').split(',')]
-        
-        # Create feature vector (assuming 2 resource types)
-        features = [
-            allocated[0], allocated[1],  # allocated R1, R2
-            requested[0], requested[1],  # requested R1, R2
-            available[0], available[1]   # available R1, R2
-        ]
-        
-        # Make prediction
-        prediction = model.predict([features])[0]
-        
-        # Generate results
-        if prediction == 0:
-            result = "System is in a safe state"
-            safe_seq = find_safe_sequence(allocated, requested, available)
-            recommendations = ["All resources can be safely allocated"]
-        else:
-            result = "System is in an unsafe state (potential deadlock)"
-            safe_seq = []
-            recommendations = [
-                "Reduce resource requests",
-                "Increase available resources",
-                "Terminate some processes"
-            ]
-        
-        return result, safe_seq, recommendations
-    
-    except Exception as e:
-        print(f"Prediction error: {str(e)}")
-        return "Error in prediction", [], ["Check your input format"]
+    """
+    Standalone function to predict deadlock using the DeadlockDetector class.
+    """
+    detector = DeadlockDetector()
+    return detector.predict(allocated, requested, available)
 
-def find_safe_sequence(allocated, requested, available):
-    """Simplified safe sequence finder (Banker's algorithm)"""
-    # This is a placeholder - implement proper Banker's algorithm here
-    return [0, 1, 2] if sum(available) > sum(requested) else []
+# Example usage
+if __name__ == "__main__":
+    # Initialize detector (3 processes, 2 resources by default)
+    detector = DeadlockDetector()
+    
+    # Train the model
+    print("Training model...")
+    detector.train()
+    
+    # Example prediction
+    allocated = [[1, 0], [2, 1], [0, 1]]
+    requested = [[0, 1], [1, 0], [0, 0]]
+    available = [2, 1]
+    
+    print("\nMaking prediction...")
+    result = detector.predict(allocated, requested, available)
+    print("\nPrediction Result:")
+    import pprint
+    pprint.pprint(result)
