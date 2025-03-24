@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deadlock Predictor and Explanation</title>
+    <link rel="stylesheet" href="/static/style.css"> <!-- Link to your CSS file -->
+</head>
+<body>
+    <!-- Navbar -->
+    <nav>
+        <ul>
+            <li><a href="#predictor">Deadlock Predictor</a></li>
+            <li><a href="#why-deadlock">Why Deadlock Happens</a></li>
+        </ul>
+    </nav>
+
+    <!-- Deadlock Predictor Section -->
+    <section id="predictor">
+        <h2>Deadlock Predictor</h2>
+        <form method="POST" action="/predict">
+            <label for="allocated_resources">Allocated Resources (Matrix Format):</label>
+            <textarea name="allocated_resources" required></textarea>
+
+            <label for="requested_resources">Requested Resources (Matrix Format):</label>
+            <textarea name="requested_resources" required></textarea>
+
+            <label for="available_resources">Available Resources:</label>
+            <input type="text" name="available_resources" required>
+
+            <button type="submit">Predict Deadlock</button>
+        </form>
+
+        <!-- Display Prediction Result -->
+        <div id="prediction-result">
+            {% if prediction %}
+                <h3>Prediction Result: {{ prediction }}</h3>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Explanation Section -->
+    <section id="why-deadlock">
+        <h2>Why Does Deadlock Happen?</h2>
+        <p>Deadlock is a situation in which a set of processes are blocked because each process is holding a resource and waiting for another resource held by another process. A deadlock situation occurs if the following four conditions are true simultaneously in a system:</p>
+
+        <ul>
+            <li><strong>Mutual Exclusion:</strong> At least one resource must be held in a non-shareable mode, meaning that only one process can use the resource at any time.</li>
+            <li><strong>Hold and Wait:</strong> A process must be holding at least one resource and waiting to acquire additional resources that are currently held by other processes.</li>
+            <li><strong>No Preemption:</strong> A resource can be released only voluntarily by the process holding it after that process has completed its task.</li>
+            <li><strong>Circular Wait:</strong> There must exist a set of processes [P1, P2, ..., Pn] such that P1 is waiting for a resource held by P2, P2 is waiting for a resource held by P3, and so on, until Pn is waiting for a resource held by P1.</li>
+        </ul>
+
+        <p>If all four conditions are present, a deadlock can occur, causing processes to be stuck indefinitely. Our Deadlock Predictor uses the Banker's Algorithm to predict if the input resource configuration can lead to a deadlock.</p>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Deadlock Predictor Project</p>
+    </footer>
+</body>
+</html>
