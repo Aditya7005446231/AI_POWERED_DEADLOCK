@@ -150,26 +150,26 @@
             transform: translateY(-2px);
         }
         
-        .features {
+        .concepts {
             max-width: 1200px;
             margin: 4rem auto;
             padding: 0 2rem;
         }
         
-        .features h2 {
+        .concepts h2 {
             text-align: center;
             margin-bottom: 3rem;
             font-size: 2rem;
             color: var(--dark-color);
         }
         
-        .features-grid {
+        .concepts-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 2rem;
         }
         
-        .feature-card {
+        .concept-card {
             background-color: white;
             border-radius: 8px;
             padding: 2rem;
@@ -177,18 +177,18 @@
             transition: transform 0.3s, box-shadow 0.3s;
         }
         
-        .feature-card:hover {
+        .concept-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
         
-        .feature-icon {
+        .concept-icon {
             font-size: 2.5rem;
             color: var(--accent-color);
             margin-bottom: 1rem;
         }
         
-        .feature-card h3 {
+        .concept-card h3 {
             margin-bottom: 1rem;
             color: var(--primary-color);
         }
@@ -239,43 +239,43 @@
     </header>
 
     <section class="hero">
-        <h1>AI-Powered Deadlock Detection</h1>
-        <p>Advanced machine learning system to predict and prevent deadlocks in resource allocation systems. Improve your system's reliability and performance.</p>
+        <h1>Understanding Deadlocks</h1>
+        <p>Learn about deadlocks in operating systems - how they occur, how to detect them, and strategies to prevent them.</p>
         <div class="cta-buttons">
-            <a href="/predictor" class="btn btn-primary">Try the Predictor</a>
-            <a href="/deadlock" class="btn btn-outline">Learn About Deadlocks</a>
+            <a href="/predictor" class="btn btn-primary">Try Deadlock Simulation</a>
+            <a href="/deadlock" class="btn btn-outline">Learn the Basics</a>
         </div>
     </section>
 
-    <section class="features">
-        <h2>Why Choose Our Solution</h2>
-        <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-brain"></i>
+    <section class="concepts">
+        <h2>Key Deadlock Concepts</h2>
+        <div class="concepts-grid">
+            <div class="concept-card">
+                <div class="concept-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
                 </div>
-                <h3>Advanced AI</h3>
-                <p>Our machine learning models accurately predict deadlock scenarios before they occur, using state-of-the-art algorithms.</p>
+                <h3>What is a Deadlock?</h3>
+                <p>A deadlock occurs when two or more processes are unable to proceed because each is waiting for the other to release resources, creating a circular wait condition.</p>
             </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-bolt"></i>
+            <div class="concept-card">
+                <div class="concept-icon">
+                    <i class="fas fa-chess-board"></i>
                 </div>
-                <h3>Real-time Analysis</h3>
-                <p>Monitor your system in real-time and receive instant alerts about potential deadlock situations.</p>
+                <h3>Necessary Conditions</h3>
+                <p>Four conditions must hold: Mutual Exclusion, Hold and Wait, No Preemption, and Circular Wait. All four are required for deadlock to occur.</p>
             </div>
-            <div class="feature-card">
-                <div class="feature-icon">
+            <div class="concept-card">
+                <div class="concept-icon">
                     <i class="fas fa-shield-alt"></i>
                 </div>
-                <h3>Preventative Measures</h3>
-                <p>Get actionable recommendations to prevent deadlocks before they impact your system's performance.</p>
+                <h3>Prevention Strategies</h3>
+                <p>Methods include resource allocation graphs, Banker's algorithm, and ensuring at least one necessary condition cannot hold.</p>
             </div>
         </div>
     </section>
 
     <footer>
-        <p>&copy; 2025 AI-Powered Deadlock Detection. All rights reserved.</p>
+        <p>&copy; 2025 Deadlock Educational Resource. All rights reserved.</p>
     </footer>
 </body>
 </html>
