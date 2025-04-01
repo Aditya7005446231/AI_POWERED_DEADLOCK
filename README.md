@@ -73,9 +73,13 @@ Export results (PDF/CSV) for documentation.
 
 👨‍💻 Running the Project
 git clone https://github.com/your-repo/AI_POWERED_DEADLOCK.git
+
 cd AI_POWERED_DEADLOCK
+
 pip install -r requirements.txt
-python app.py  
+
+python app.py
+
 Visit http://127.0.0.1:5000
 
 🎯 Why This Version?
