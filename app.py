@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-from bankers import is_safe_state, parse_input
+from model import is_safe_state, parse_input
 
 import numpy as np
 
