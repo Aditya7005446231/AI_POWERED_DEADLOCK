@@ -3,330 +3,469 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI-Powered Deadlock Detection</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <title>Banker's Algorithm Predictor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         :root {
             --primary: #4361ee;
-            --primary-light: #4895ef;
+            --primary-dark: #3a56d4;
             --secondary: #3f37c9;
             --success: #4cc9f0;
             --danger: #f72585;
             --light: #f8f9fa;
             --dark: #212529;
             --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
         }
-        
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Roboto', sans-serif;
-            background-color: #f5f7ff;
-            color: var(--dark);
             line-height: 1.6;
+            color: var(--dark);
+            background-color: #f5f7fa;
             padding: 20px;
         }
-        
+
         .container {
-            max-width: 800px;
-            margin: 30px auto;
-            background-color: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
         }
-        
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
         h1 {
-            color: var(--primary);
-            margin-bottom: 10px;
-            font-weight: 700;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
         }
-        
-        .subtitle {
-            color: var(--gray);
-            margin-bottom: 30px;
-            font-weight: 300;
+
+        nav {
+            display: flex;
+            gap: 1.5rem;
         }
-        
-        .info-card {
-            background-color: #f0f4ff;
-            border-left: 4px solid var(--primary);
-            padding: 15px;
-            margin-bottom: 25px;
-            border-radius: 0 8px 8px 0;
-        }
-        
-        .info-card h3 {
-            margin-top: 0;
-            color: var(--secondary);
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
+
+        nav a {
+            color: white;
+            text-decoration: none;
             font-weight: 500;
-            color: var(--dark);
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
         }
-        
-        .input-hint {
-            font-size: 0.85em;
-            color: var(--gray);
-            margin-top: -5px;
-            margin-bottom: 10px;
+
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
         }
-        
-        input[type="text"], textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-family: 'Roboto', sans-serif;
-            transition: all 0.3s;
+
+        .content {
+            padding: 2rem;
         }
-        
-        input[type="text"]:focus, textarea:focus {
-            border-color: var(--primary-light);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
-            outline: none;
+
+        .config-form {
+            background: var(--light);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            box-shadow: var(--box-shadow);
         }
-        
-        textarea {
-            min-height: 100px;
-            resize: vertical;
+
+        .config-group {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 1rem;
+            align-items: center;
         }
-        
-        button {
+
+        .config-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        input[type="number"] {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            width: 80px;
+            font-family: 'Source Code Pro', monospace;
+        }
+
+        .generate-btn {
             background-color: var(--primary);
             color: white;
-            padding: 12px 25px;
             border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1em;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
             font-weight: 500;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
         }
-        
-        button:hover {
-            background-color: var(--secondary);
+
+        .generate-btn:hover {
+            background-color: var(--primary-dark);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(63, 55, 201, 0.3);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
-        
-        button:active {
-            transform: translateY(0);
-        }
-        
-        .result-container {
-            margin-top: 30px;
-            padding: 20px;
-            border-radius: 8px;
-            animation: fadeIn 0.5s ease-in-out;
-        }
-        
-        .safe {
-            background-color: rgba(76, 201, 240, 0.1);
-            border-left: 4px solid var(--success);
-        }
-        
-        .unsafe {
-            background-color: rgba(247, 37, 133, 0.1);
-            border-left: 4px solid var(--danger);
-        }
-        
-        .result-title {
-            font-weight: 700;
-            margin-top: 0;
-        }
-        
-        .process-list {
-            margin-top: 15px;
-        }
-        
-        .process-list li {
-            margin-bottom: 5px;
-            padding: 8px;
-            background-color: white;
-            border-radius: 4px;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .example-btn {
-            background: none;
-            border: none;
-            color: var(--primary);
-            text-decoration: underline;
-            cursor: pointer;
-            padding: 0;
-            font-size: 0.9em;
-            margin-left: 10px;
-        }
-        
-        .tabs {
+
+        .matrix-container {
             display: flex;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #ddd;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
         }
-        
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s;
+
+        .matrix, .available {
+            flex: 1;
+            min-width: 300px;
+            background: var(--light);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
         }
-        
-        .tab.active {
-            border-bottom: 3px solid var(--primary);
+
+        .matrix h2, .available h2 {
+            margin-bottom: 1rem;
             color: var(--primary);
+            font-size: 1.3rem;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 0.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: center;
+            border: 1px solid #dee2e6;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: white;
             font-weight: 500;
         }
-        
-        .tab-content {
+
+        tr:nth-child(even) {
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        tr:hover {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+
+        .submit-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            display: block;
+            margin: 2rem auto;
+            width: 200px;
+        }
+
+        .submit-btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .result {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+
+        .success {
+            background-color: rgba(76, 201, 240, 0.2);
+            color: #0a9396;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            border-left: 5px solid #0a9396;
+        }
+
+        .error {
+            background-color: rgba(247, 37, 133, 0.2);
+            color: var(--danger);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            border-left: 5px solid var(--danger);
+        }
+
+        .execution-sequence {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 2rem;
+        }
+
+        .execution-step {
+            background-color: var(--light);
+            border-radius: var(--border-radius);
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.5rem;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+
+        .execution-step:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .step-number {
+            font-weight: bold;
+            color: var(--primary);
+            margin-right: 0.5rem;
+        }
+
+        .process {
+            font-family: 'Source Code Pro', monospace;
+            font-weight: bold;
+            color: var(--dark);
+            font-size: 1.1rem;
+        }
+
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+        }
+
+        .alert.error {
+            background-color: rgba(247, 37, 133, 0.2);
+            color: var(--danger);
+            border-left: 5px solid var(--danger);
+        }
+
+        .hidden {
             display: none;
         }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .footer {
-            text-align: center;
-            margin-top: 40px;
-            color: var(--gray);
-            font-size: 0.9em;
+
+        @media (max-width: 768px) {
+            .matrix-container {
+                flex-direction: column;
+            }
+            
+            .config-group {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            nav {
+                width: 100%;
+                justify-content: space-between;
+                gap: 0.5rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>AI-Powered Deadlock Detection</h1>
-        <p class="subtitle">Predict and analyze potential deadlocks in your system resource allocation</p>
-        
-        <div class="info-card">
-            <h3>How it works</h3>
-            <p>This system uses the Banker's algorithm combined with AI analysis to detect potential deadlocks in your resource allocation scenario. Enter your current resource allocation, requests, and available resources to check for safety.</p>
-        </div>
-        
-        <div class="tabs">
-            <div class="tab active" onclick="openTab(event, 'detection')">Deadlock Detection</div>
-            <div class="tab" onclick="openTab(event, 'tutorial')">How to Use</div>
-        </div>
-        
-        <div id="detection" class="tab-content active">
-            <form method="POST" action="/predictor">
-                <div class="form-group">
-                    <label for="allocated">Allocated Resources</label>
-                    <textarea id="allocated" name="allocated" rows="4"></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label for="requested">Requested Resources</label>
-                    <textarea id="requested" name="requested" rows="4"></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label for="available">Available Resources</label>
-                    <input type="text" id="available" name="available">
-                </div>
-                
-                <button type="submit">Analyze for Deadlock</button>
-            </form>
-            
-            {% if result is not none %}
-            <div class="result-container {% if 'safe' in result.lower() %}safe{% else %}unsafe{% endif %}">
-                <h3 class="result-title">Analysis Result</h3>
-                <p>{{ result }}</p>
-                
-                {% if safe_sequence %}
-                <div class="process-list">
-                    <p><strong>Safe Execution Sequence:</strong></p>
-                    <ol>
-                        {% for process in safe_sequence %}
-                        <li>Process {{ process }}</li>
-                        {% endfor %}
-                    </ol>
-                </div>
-                {% endif %}
-                
-                {% if suggestions %}
-                <div class="suggestions">
-                    <p><strong>Recommendations:</strong></p>
-                    <ul>
-                        {% for suggestion in suggestions %}
-                        <li>{{ suggestion }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                {% endif %}
+        <header>
+            <h1><i class="fas fa-calculator"></i> Banker's Algorithm Predictor</h1>
+            <nav>
+                <a href="{{ url_for('index') }}"><i class="fas fa-home"></i> Home</a>
+                <a href="{{ url_for('deadlock') }}"><i class="fas fa-info-circle"></i> About Deadlocks</a>
+            </nav>
+        </header>
+
+        <div class="content">
+            {% if error %}
+                <div class="alert error"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+            {% endif %}
+
+            <div class="config-form">
+                <h2><i class="fas fa-cog"></i> Configuration</h2>
+                <form id="configForm">
+                    <div class="config-group">
+                        <label><i class="fas fa-project-diagram"></i> Number of Processes: 
+                            <input type="number" id="n_processes" name="n_processes" value="5" min="1" required>
+                        </label>
+                        <label><i class="fas fa-cubes"></i> Number of Resources: 
+                            <input type="number" id="n_resources" name="n_resources" value="3" min="1" required>
+                        </label>
+                    </div>
+                    <button type="button" class="generate-btn" onclick="generateTables()">
+                        <i class="fas fa-table"></i> Generate Tables
+                    </button>
+                </form>
             </div>
+
+            <form id="bankerForm" method="POST" class="hidden">
+                <div class="matrix-container">
+                    <div class="matrix">
+                        <h2><i class="fas fa-table"></i> Allocation Matrix</h2>
+                        <div id="allocationMatrix">
+                            <!-- Generated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="matrix">
+                        <h2><i class="fas fa-chart-line"></i> Maximum Demand</h2>
+                        <div id="maxMatrix">
+                            <!-- Generated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="available">
+                    <h2><i class="fas fa-box-open"></i> Available Resources</h2>
+                    <div id="availableResources">
+                        <!-- Generated by JavaScript -->
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn"><i class="fas fa-shield-alt"></i> Check Safety</button>
+            </form>
+
+            {% if sequence is defined %}
+                <div class="result">
+                    <h2><i class="fas fa-clipboard-check"></i> Result</h2>
+                    {% if safe %}
+                        <div class="success"><i class="fas fa-check-circle"></i> SAFE STATE</div>
+                        <div class="execution-sequence">
+                            <div class="process-sequence">
+                                {% for process in sequence.split(' ') %}
+                                    <span class="process">{{ process }}</span>
+                                    {% if not loop.last %}
+                                        <span class="arrow">→</span>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="error"><i class="fas fa-exclamation-triangle"></i> UNSAFE STATE (Deadlock possible)</div>
+                    {% endif %}
+                </div>
             {% endif %}
         </div>
-        
-        <div id="tutorial" class="tab-content">
-            <h3>Understanding Deadlock Detection</h3>
-            <p>Deadlock occurs when multiple processes are blocked because each is holding a resource and waiting for another resource acquired by some other process.</p>
-            
-            <h4>How to format your input:</h4>
-            <p><strong>Allocated Resources:</strong> A matrix showing what each process currently holds.</p>
-            <p>Example for 3 processes (P0, P1, P2) and 3 resources (R0, R1, R2):</p>
-            <pre>[
-  [1, 0, 1],  // P0 holds 1 R0 and 1 R2
-  [2, 1, 0],  // P1 holds 2 R0 and 1 R1
-  [0, 1, 1]   // P2 holds 1 R1 and 1 R2
-]</pre>
-            
-            <p><strong>Requested Resources:</strong> A matrix showing what each process is requesting.</p>
-            <pre>[
-  [0, 1, 0],  // P0 requests 1 R1
-  [1, 0, 1],  // P1 requests 1 R0 and 1 R2
-  [0, 0, 1]   // P2 requests 1 R2
-]</pre>
-            
-            <p><strong>Available Resources:</strong> A vector showing currently free resources.</p>
-            <pre>[2, 1, 1]  // 2 R0, 1 R1, 1 R2 available</pre>
-            
-            <h4>Understanding the Results</h4>
-            <p><strong>Safe State:</strong> The system can allocate resources to each process in some order and still avoid a deadlock.</p>
-            <p><strong>Unsafe State:</strong> The system cannot guarantee that deadlock will be avoided.</p>
-        </div>
-        
-        <div class="footer">
-            <p>AI Deadlock Predictor v1.0 | Uses Banker's Algorithm with AI enhancements</p>
-        </div>
     </div>
-    
+
     <script>
-        function openTab(evt, tabName) {
-            var i, tabcontent, tablinks;
+        function generateTables() {
+            const nProcesses = parseInt(document.getElementById('n_processes').value);
+            const nResources = parseInt(document.getElementById('n_resources').value);
             
-            tabcontent = document.getElementsByClassName("tab-content");
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].className = tabcontent[i].className.replace(" active", "");
+            // Generate Allocation Matrix
+            let allocationHTML = '<table><tr><th>Process</th>';
+            for (let j = 0; j < nResources; j++) {
+                allocationHTML += `<th>R${j}</th>`;
             }
+            allocationHTML += '</tr>';
             
-            tablinks = document.getElementsByClassName("tab");
-            for (i = 0; i < tablinks.length; i++) {
-                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            for (let i = 0; i < nProcesses; i++) {
+                allocationHTML += `<tr><td><strong>P${i}</strong></td>`;
+                for (let j = 0; j < nResources; j++) {
+                    // Set default value to 0 or use existing value if available
+                    const allocValue = "{{ allocation[i][j] if allocation and allocation[i] and allocation[i][j] is defined else 0 }}";
+                    allocationHTML += `<td><input type="number" name="allocation_${i}_${j}" value="${allocValue}" min="0" required></td>`;
+                }
+                allocationHTML += '</tr>';
             }
+            allocationHTML += '</table>';
+            document.getElementById('allocationMatrix').innerHTML = allocationHTML;
             
-            document.getElementById(tabName).className += " active";
-            evt.currentTarget.className += " active";
+            // Generate Maximum Demand Matrix
+            let maxHTML = '<table><tr><th>Process</th>';
+            for (let j = 0; j < nResources; j++) {
+                maxHTML += `<th>R${j}</th>`;
+            }
+            maxHTML += '</tr>';
+            
+            for (let i = 0; i < nProcesses; i++) {
+                maxHTML += `<tr><td><strong>P${i}</strong></td>`;
+                for (let j = 0; j < nResources; j++) {
+                    // Set default value to 0 or use existing value if available
+                    const maxValue = "{{ max_demand[i][j] if max_demand and max_demand[i] and max_demand[i][j] is defined else 0 }}";
+                    maxHTML += `<td><input type="number" name="max_${i}_${j}" value="${maxValue}" min="0" required></td>`;
+                }
+                maxHTML += '</tr>';
+            }
+            maxHTML += '</table>';
+            document.getElementById('maxMatrix').innerHTML = maxHTML;
+            
+            // Generate Available Resources
+            let availHTML = '<table><tr>';
+            for (let j = 0; j < nResources; j++) {
+                availHTML += `<th>R${j}</th>`;
+            }
+            availHTML += '</tr><tr>';
+            for (let j = 0; j < nResources; j++) {
+                // Set default value to 0 or use existing value if available
+                const availValue = "{{ available[j] if available and available[j] is defined else 0 }}";
+                availHTML += `<td><input type="number" name="avail_${j}" value="${availValue}" min="0" required></td>`;
+            }
+            availHTML += '</tr></table>';
+            document.getElementById('availableResources').innerHTML = availHTML;
+            
+            // Show the form
+            document.getElementById('bankerForm').classList.remove('hidden');
+            
+            // Scroll to the form
+            document.getElementById('bankerForm').scrollIntoView({ behavior: 'smooth' });
         }
-        
-        function fillExample() {
-            document.getElementById("allocated").value = "[[1, 0, 1], [2, 1, 0], [0, 1, 1]]";
-            document.getElementById("requested").value = "[[0, 1, 0], [1, 0, 1], [0, 0, 1]]";
-            document.getElementById("available").value = "[2, 1, 1]";
-        }
+    
+        // Generate tables on page load if values are present (for form submission errors)
+        document.addEventListener('DOMContentLoaded', function() {
+            const nProcesses = parseInt("{{ n_processes|default(0) }}");
+            const nResources = parseInt("{{ n_resources|default(0) }}");
+            
+            if (nProcesses > 0 && nResources > 0) {
+                document.getElementById('n_processes').value = nProcesses;
+                document.getElementById('n_resources').value = nResources;
+                generateTables();
+            }
+        });
     </script>
 </body>
 </html>

@@ -1,0 +1,38 @@
+[33ma90ba8e[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m HEAD@{0}: reset: moving to origin/main
+[33m31a0ef3[m HEAD@{1}: checkout: moving from main to main
+[33m31a0ef3[m HEAD@{2}: rebase (abort): returning to refs/heads/main
+[33m31a0ef3[m HEAD@{3}: rebase (abort): returning to refs/heads/main
+[33mbcf61b9[m HEAD@{4}: rebase (continue): bankers to model.py
+[33ma90ba8e[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m HEAD@{5}: commit (amend): updating the model.py
+[33mf2ddf75[m HEAD@{6}: reset: moving to HEAD~1
+[33m20b0c9a[m HEAD@{7}: commit: Your commit message here
+[33mf2ddf75[m HEAD@{8}: reset: moving to HEAD@{6}
+[33m31a0ef3[m HEAD@{9}: checkout: moving from f78d5b649a22c6b067569337760db10cc04f784c to main
+[33mf78d5b6[m HEAD@{10}: commit (amend): Create requirements.txt
+[33m0f1cf42[m HEAD@{11}: rebase (edit): Create requirements.txt
+[33mb5c8b88[m HEAD@{12}: commit (amend): Update README.md
+[33m9647349[m HEAD@{13}: rebase (edit): Update README.md
+[33m58eaf80[m HEAD@{14}: commit (amend): updating the model.py
+[33mf2ddf75[m HEAD@{15}: rebase (edit): updating the model.py
+[33m31264b7[m HEAD@{16}: commit (amend): Update README.md
+[33m9c7521f[m HEAD@{17}: rebase (edit): Update README.md
+[33m73c3b0b[m HEAD@{18}: commit (amend): Create README.md
+[33m9c3283c[m HEAD@{19}: rebase (edit): Create README.md
+[33mb4fffaa[m HEAD@{20}: commit (amend): change the fornt webpage
+[33m4e6b059[m HEAD@{21}: rebase (edit): change the fornt webpage
+[33m14d5f1c[m HEAD@{22}: commit (amend): added some extra features in the model and changed the ui of the predictor
+[33m0a35e3f[m HEAD@{23}: rebase: fast-forward
+[33m7e9bfd7[m HEAD@{24}: rebase (start): checkout HEAD~6
+[33m31a0ef3[m HEAD@{25}: commit (amend): bankers to model.py
+[33m900a210[m HEAD@{26}: commit: bankers to model.py
+[33m7c0d36b[m HEAD@{27}: commit (amend): Updated the model.py
+[33mad9f7b7[m HEAD@{28}: commit (amend): Merge branch 'main' of https://github.com/Aditya7005446231/AI_POWERED_DEADLOCK
+[33m349f59e[m HEAD@{29}: commit (amend): Merge branch 'main' of https://github.com/Aditya7005446231/AI_POWERED_DEADLOCK
+[33mf2b229e[m HEAD@{30}: pull --tags origin main: Merge made by the 'ort' strategy.
+[33mac0faef[m HEAD@{31}: commit (amend): updating the model.py
+[33m4c0c29a[m HEAD@{32}: commit: Updating the model.py
+[33m2b48f2d[m HEAD@{33}: pull --tags origin main: Merge made by the 'ort' strategy.
+[33m1da01fc[m HEAD@{34}: commit: change the fornt webpage
+[33m0a35e3f[m HEAD@{35}: commit: added some extra features in the model and changed the ui of the predictor
+[33m7e9bfd7[m HEAD@{36}: commit: added some extra information about deadlock
+[33mdcf93de[m HEAD@{37}: commit (initial): Added app.py , model.py and html file for webpage
